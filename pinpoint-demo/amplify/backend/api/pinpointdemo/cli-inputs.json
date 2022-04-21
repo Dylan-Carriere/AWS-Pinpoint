@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "serviceConfiguration": {
+    "apiName": "pinpointdemo",
+    "serviceName": "AppSync",
+    "gqlSchemaPath": "C:\\Users\\dcarriere\\OneDrive - Sopra Steria\\Documents\\AWS-Pinpoint\\pinpoint-demo\\amplify\\backend\\api\\pinpointdemo\\schema.graphql",
+    "defaultAuthType": {
+      "mode": "API_KEY",
+      "expirationTime": 7
+    }
+  }
+}

@@ -10,6 +10,11 @@
       "StackName": "amplify-pinpointdemo-dev-230217",
       "StackId": "arn:aws:cloudformation:eu-west-1:073416818566:stack/amplify-pinpointdemo-dev-230217/556035e0-c1b6-11ec-8414-02c1f363adff",
       "AmplifyAppId": "d3tc5fjfr4om00"
+    },
+    "categories": {
+      "auth": {
+        "pinpointdemo09994e69": {}
+      }
     }
   }
 }
