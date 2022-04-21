@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-pinpointdemo-dev-230217-authRole",
+      "UnauthRoleArn": "arn:aws:iam::073416818566:role/amplify-pinpointdemo-dev-230217-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::073416818566:role/amplify-pinpointdemo-dev-230217-authRole",
+      "Region": "eu-west-1",
+      "DeploymentBucketName": "amplify-pinpointdemo-dev-230217-deployment",
+      "UnauthRoleName": "amplify-pinpointdemo-dev-230217-unauthRole",
+      "StackName": "amplify-pinpointdemo-dev-230217",
+      "StackId": "arn:aws:cloudformation:eu-west-1:073416818566:stack/amplify-pinpointdemo-dev-230217/556035e0-c1b6-11ec-8414-02c1f363adff",
+      "AmplifyAppId": "d3tc5fjfr4om00"
+    }
+  }
+}
