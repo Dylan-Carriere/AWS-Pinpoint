@@ -1,6 +1,6 @@
 /* src/App.js */
 import React, { useEffect, useState } from 'react'
-import Amplify, { API, button, graphqlOperation } from 'aws-amplify'
+import Amplify, { API, button, graphqlOperation, Auth } from 'aws-amplify'
 import { createTodo } from './graphql/mutations'
 import { deleteTodo } from './graphql/mutations'
 import { listTodos } from './graphql/queries'
@@ -12,46 +12,49 @@ Amplify.configure(awsExports);
 
 
 const initialState = { name: '', description: '' }
+const Userid = Auth.currentUserInfo()
 
 const App = () => {
   const [formState, setFormState] = useState(initialState)
   const [todos, setTodos] = useState([])
 
+
   useEffect(() => {
-    fetchTodos()
+    Auth.currentUserInfo().then(user => fetchTodos(user.username))
   }, [])
 
   function setInput(key, value) {
     setFormState({ ...formState, [key]: value })
   }
 
-  async function fetchTodos() {
+  async function fetchTodos(user) {
     try {
-      const todoData = await API.graphql(graphqlOperation(listTodos))
+      const todoData = await API.graphql(graphqlOperation(listTodos, {filter: {userid:{eq: user}}}))
       const todos = todoData.data.listTodos.items
       setTodos(todos)
     } catch (err) { console.log('error fetching todos') }
   }
 
-  async function addTodo() {
+  async function addTodo(user) {
     try {
       if (!formState.name || !formState.description) return
-      const todo = { ...formState }
+      let todo = { ...formState }
+      todo.userid = user
       setTodos([...todos, todo])
       setFormState(initialState)
       await API.graphql(graphqlOperation(createTodo, {input: todo}))
-      fetchTodos()
+      fetchTodos(user)
     } catch (err) {
       console.log('error creating todo:', err)
     }
   }
 
-  async function removeTodo(todo, index) {
+  async function removeTodo(todo, user) {
     try {
       let rmTodo = {}
       rmTodo.id = todo.id
       await API.graphql(graphqlOperation(deleteTodo, {input: rmTodo}))
-      fetchTodos()
+      fetchTodos(user)
     } catch (err) {
       console.log('error deleting todo:', err)
     }
@@ -74,13 +77,13 @@ const App = () => {
           value={formState.description}
           placeholder="Description"
         />
-        <button style={styles.button} onClick={addTodo}>Create Todo</button>
+        <button style={styles.button} onClick={()=> addTodo(user.username)}>Create Todo</button>
         {
           todos.map((todo, index) => (
             <div name="todo" key={todo.id ? todo.id : index} style={styles.todo}>
               <p style={styles.todoName}>{todo.name}</p>
               <p style={styles.todoDescription}>{todo.description}</p>
-              <button onClick={()=> removeTodo(todo, index)}>delete</button>
+              <button onClick={()=> removeTodo(todo, user.username)}>delete</button>
             </div>
           ))
         }
