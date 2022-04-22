@@ -1,7 +1,8 @@
 /* src/App.js */
 import React, { useEffect, useState } from 'react'
-import Amplify, { API, graphqlOperation } from 'aws-amplify'
+import Amplify, { API, button, graphqlOperation } from 'aws-amplify'
 import { createTodo } from './graphql/mutations'
+import { deleteTodo } from './graphql/mutations'
 import { listTodos } from './graphql/queries'
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
@@ -39,8 +40,20 @@ const App = () => {
       setTodos([...todos, todo])
       setFormState(initialState)
       await API.graphql(graphqlOperation(createTodo, {input: todo}))
+      fetchTodos()
     } catch (err) {
       console.log('error creating todo:', err)
+    }
+  }
+
+  async function removeTodo(todo, index) {
+    try {
+      let rmTodo = {}
+      rmTodo.id = todo.id
+      await API.graphql(graphqlOperation(deleteTodo, {input: rmTodo}))
+      fetchTodos()
+    } catch (err) {
+      console.log('error deleting todo:', err)
     }
   }
 
@@ -92,9 +105,10 @@ const App = () => {
         <button style={styles.button} onClick={addTodo}>Create Todo</button>
         {
           todos.map((todo, index) => (
-            <div key={todo.id ? todo.id : index} style={styles.todo}>
+            <div name="todo" key={todo.id ? todo.id : index} style={styles.todo}>
               <p style={styles.todoName}>{todo.name}</p>
               <p style={styles.todoDescription}>{todo.description}</p>
+              <button onClick={()=> removeTodo(todo, index)}>delete</button>
             </div>
           ))
         }
@@ -109,7 +123,7 @@ const styles = {
   input: { border: 'none', backgroundColor: '#ddd', marginBottom: 10, padding: 8, fontSize: 18 },
   todoName: { fontSize: 20, fontWeight: 'bold' },
   todoDescription: { marginBottom: 0 },
-  button: { backgroundColor: 'black', color: 'white', outline: 'none', fontSize: 18, padding: '12px 0px' }
+  button: { backgroundColor: 'black', color: 'white', outline: 'none', fontSize: 18, padding: '12px 0px' },
 }
 
 export default App
