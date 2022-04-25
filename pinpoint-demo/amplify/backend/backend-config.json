@@ -44,5 +44,11 @@
         ]
       }
     }
+  },
+  "analytics": {
+    "pinpointdemo": {
+      "service": "Pinpoint",
+      "providerPlugin": "awscloudformation"
+    }
   }
 }

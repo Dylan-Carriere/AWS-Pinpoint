@@ -16,5 +16,12 @@ export type AmplifyDependentResourcesAttributes = {
             "AppClientIDWeb": "string",
             "AppClientID": "string"
         }
+    },
+    "analytics": {
+        "pinpointdemo": {
+            "Region": "string",
+            "Id": "string",
+            "appName": "string"
+        }
     }
 }

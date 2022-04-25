@@ -1,6 +1,6 @@
 /* src/App.js */
 import React, { useEffect, useState } from 'react'
-import Amplify, { API, button, graphqlOperation, Auth } from 'aws-amplify'
+import Amplify, { API, button, graphqlOperation, Auth, Analytics } from 'aws-amplify'
 import { createTodo } from './graphql/mutations'
 import { deleteTodo } from './graphql/mutations'
 import { listTodos } from './graphql/queries'
@@ -8,19 +8,25 @@ import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 
 import awsExports from "./aws-exports";
+import { NonRetryableError } from '@aws-amplify/core'
 Amplify.configure(awsExports);
 
-
 const initialState = { name: '', description: '' }
-const Userid = Auth.currentUserInfo()
 
 const App = () => {
   const [formState, setFormState] = useState(initialState)
   const [todos, setTodos] = useState([])
+  const [User, setUser] = useState(null)
 
 
   useEffect(() => {
-    Auth.currentUserInfo().then(user => fetchTodos(user.username))
+    Auth.currentUserInfo()
+      .then(user =>{
+        setUser(user)
+        fetchTodos(user.username)
+        console.log(user)
+      })
+      .catch(err => console.log(err))
   }, [])
 
   function setInput(key, value) {
@@ -44,6 +50,22 @@ const App = () => {
       setFormState(initialState)
       await API.graphql(graphqlOperation(createTodo, {input: todo}))
       fetchTodos(user)
+      //pinpoint
+      await Analytics.updateEndpoint({
+        address: User.attributes.email,
+        attributes: {
+          todo: [todo.name],
+          status: ['pending']
+        },
+        channelType: 'EMAIL',
+        optOut: 'NONE',
+        userAttributes:{
+          username: [User.username]
+        },
+        userId: User.attributes.email
+      })
+      // send to analytics
+      await Analytics.record({name: 'AddTodo'})
     } catch (err) {
       console.log('error creating todo:', err)
     }
@@ -55,6 +77,22 @@ const App = () => {
       rmTodo.id = todo.id
       await API.graphql(graphqlOperation(deleteTodo, {input: rmTodo}))
       fetchTodos(user)
+      //pinpoint
+      await Analytics.updateEndpoint({
+        address: User.attributes.email,
+        attributes: {
+          todo: [todo.name],
+          status: ['done']
+        },
+        channelType: 'EMAIL',
+        optOut: 'NONE',
+        userAttributes:{
+          username: [User.username]
+        },
+        userId: User.attributes.email
+      })
+      // send to analytics
+      await Analytics.record({name: 'removeTodo'})
     } catch (err) {
       console.log('error deleting todo:', err)
     }
