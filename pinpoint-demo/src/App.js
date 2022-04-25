@@ -64,44 +64,54 @@ const App = () => {
     <Authenticator>
       {({ signOut, user }) => (
         <div style={styles.container}>
-        <h2>Amplify Todos</h2>
-        <input
-          onChange={event => setInput('name', event.target.value)}
-          style={styles.input}
-          value={formState.name}
-          placeholder="Name"
-        />
-        <input
-          onChange={event => setInput('description', event.target.value)}
-          style={styles.input}
-          value={formState.description}
-          placeholder="Description"
-        />
-        <button style={styles.button} onClick={()=> addTodo(user.username)}>Create Todo</button>
-        {
-          todos.map((todo, index) => (
-            <div name="todo" key={todo.id ? todo.id : index} style={styles.todo}>
-              <p style={styles.todoName}>{todo.name}</p>
-              <p style={styles.todoDescription}>{todo.description}</p>
-              <button onClick={()=> removeTodo(todo, user.username)}>delete</button>
-            </div>
-          ))
-        }
-      <br/>
-      <button style={styles.button} onClick={signOut}>Sign out</button>
-      </div>
+          <div>
+            <h2>PinPoint Todos</h2>
+          </div>
+          <input
+            style={styles.input}
+            onChange={event => setInput('name', event.target.value)}
+            value={formState.name}
+            placeholder="Name"
+          />
+          <input
+            style={styles.input}
+            onChange={event => setInput('description', event.target.value)}
+            value={formState.description}
+            placeholder="Description"
+          />
+          <button style={styles.button} onClick={()=> addTodo(user.username)}>Create Todo</button>
+          <br/>
+          {
+            todos.map((todo, index) => (
+              <div style={styles.todo} key={todo.id ? todo.id : index}>
+                <div style={styles.col1}>
+                  <p style={styles.todoName}>{todo.name}</p>
+                  <p style={styles.todoDescription}>{todo.description}</p>
+                </div>
+                <div style={styles.col2}>
+                  <button style={styles.button} onClick={()=> removeTodo(todo, user.username)}>delete</button>
+                </div>
+              </div>
+            ))
+          }
+          <br/>
+          <button style={styles.button} onClick={signOut}>Sign out</button>
+        </div>
       )}
     </Authenticator>
   );
 }
 
 const styles = {
-  container: { width: 400, margin: '0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 20 },
-  todo: {  marginBottom: 15 },
-  input: { border: 'none', backgroundColor: '#ddd', marginBottom: 10, padding: 8, fontSize: 18 },
+  container: { width: 400, margin: '0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' },
+  title: {padding: '40px',textAlign: 'center',background: 'black',color: 'white',fontSize: '20px', marginBottom: 15},
+  todo: { marginBottom: 10, display: 'grid', gridTemplateColumns: '200px 200px' },
+  col1: {},
+  col2: { marginRight: 0, marginLeft: 'auto' },
+  input: { border: 'none', backgroundColor: '#ddd', marginBottom: 8, padding: 8, fontSize: 18 },
   todoName: { fontSize: 20, fontWeight: 'bold' },
   todoDescription: { marginBottom: 0 },
-  button: { backgroundColor: 'black', color: 'white', outline: 'none', fontSize: 18, padding: '12px 0px' },
+  button: { backgroundColor: 'black', color: 'white', outline: 'none', fontSize: 18, padding: '12px 0px' }
 }
 
 export default App
