@@ -16,7 +16,7 @@ const initialState = { name: '', description: '' }
 const App = () => {
   const [formState, setFormState] = useState(initialState)
   const [todos, setTodos] = useState([])
-  const [User, setUser] = useState(null)
+  const [globalUser, setUser] = useState(null)
 
 
   useEffect(() => {
@@ -24,7 +24,6 @@ const App = () => {
       .then(user =>{
         setUser(user)
         fetchTodos(user.username)
-        console.log(user)
       })
       .catch(err => console.log(err))
   }, [])
@@ -52,7 +51,7 @@ const App = () => {
       fetchTodos(user)
       //pinpoint
       await Analytics.updateEndpoint({
-        address: User.attributes.email,
+        address: globalUser.attributes.email,
         attributes: {
           todo: [todo.name],
           status: ['pending']
@@ -60,9 +59,9 @@ const App = () => {
         channelType: 'EMAIL',
         optOut: 'NONE',
         userAttributes:{
-          username: [User.username]
+          username: [globalUser.username]
         },
-        userId: User.attributes.email
+        userId: globalUser.attributes.email
       })
       // send to analytics
       await Analytics.record({name: 'AddTodo'})
@@ -79,7 +78,7 @@ const App = () => {
       fetchTodos(user)
       //pinpoint
       await Analytics.updateEndpoint({
-        address: User.attributes.email,
+        address: globalUser.attributes.email,
         attributes: {
           todo: [todo.name],
           status: ['done']
@@ -87,9 +86,9 @@ const App = () => {
         channelType: 'EMAIL',
         optOut: 'NONE',
         userAttributes:{
-          username: [User.username]
+          username: [globalUser.username]
         },
-        userId: User.attributes.email
+        userId: globalUser.attributes.email
       })
       // send to analytics
       await Analytics.record({name: 'removeTodo'})
