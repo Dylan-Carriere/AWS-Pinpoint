@@ -1,6 +1,6 @@
 /* src/App.js */
 import React, { useEffect, useState } from 'react'
-import Amplify, { API, button, graphqlOperation, Auth, Analytics } from 'aws-amplify'
+import Amplify, { API, button, graphqlOperation, Auth, Analytics, Hub } from 'aws-amplify'
 import { createTodo } from './graphql/mutations'
 import { deleteTodo } from './graphql/mutations'
 import { listTodos } from './graphql/queries'
@@ -18,7 +18,6 @@ const App = () => {
   const [todos, setTodos] = useState([])
   const [globalUser, setUser] = useState(null)
 
-
   useEffect(() => {
     Auth.currentUserInfo()
       .then(user =>{
@@ -28,8 +27,32 @@ const App = () => {
       .catch(err => console.log(err))
   }, [])
 
+  const listener = (data) => {
+    switch (data.payload.event) {
+      case 'signIn':
+        console.log('sign in !')
+        Auth.currentUserInfo()
+        .then(user =>{
+          setUser(user)
+          fetchTodos(user.username)
+        })
+        .catch(err => console.log(err))
+        break;
+      case 'signOut':
+        console.log('sign out !')
+        cleanTodos()
+        setUser(null)
+        break;
+    }
+  }
+  Hub.listen('auth', listener);
+
   function setInput(key, value) {
     setFormState({ ...formState, [key]: value })
+  }
+
+  function cleanTodos() {
+    setTodos([])
   }
 
   async function fetchTodos(user) {
@@ -98,44 +121,46 @@ const App = () => {
   }
 
   return (
-    <Authenticator>
-      {({ signOut, user }) => (
-        <div style={styles.container}>
-          <div>
-            <h2>PinPoint Todos</h2>
+    <div style={styles.container}>
+      <Authenticator>
+        {({ signOut, user }) => (
+          <div style={styles.container}>
+            <div>
+              <h2>PinPoint Todos</h2>
+            </div>
+            <input
+              style={styles.input}
+              onChange={event => setInput('name', event.target.value)}
+              value={formState.name}
+              placeholder="Name"
+            />
+            <input
+              style={styles.input}
+              onChange={event => setInput('description', event.target.value)}
+              value={formState.description}
+              placeholder="Description"
+            />
+            <button style={styles.button} onClick={()=> addTodo(user.username)}>Create Todo</button>
+            <br/>
+            {
+              todos.map((todo, index) => (
+                <div style={styles.todo} key={todo.id ? todo.id : index}>
+                  <div style={styles.col1}>
+                    <p style={styles.todoName}>{todo.name}</p>
+                    <p style={styles.todoDescription}>{todo.description}</p>
+                  </div>
+                  <div style={styles.col2}>
+                    <button style={styles.button} onClick={()=> removeTodo(todo, user.username)}>delete</button>
+                  </div>
+                </div>
+              ))
+            }
+            <br/>
+            <button style={styles.button} onClick={() => { signOut(); cleanTodos()}}>Sign out</button>
           </div>
-          <input
-            style={styles.input}
-            onChange={event => setInput('name', event.target.value)}
-            value={formState.name}
-            placeholder="Name"
-          />
-          <input
-            style={styles.input}
-            onChange={event => setInput('description', event.target.value)}
-            value={formState.description}
-            placeholder="Description"
-          />
-          <button style={styles.button} onClick={()=> addTodo(user.username)}>Create Todo</button>
-          <br/>
-          {
-            todos.map((todo, index) => (
-              <div style={styles.todo} key={todo.id ? todo.id : index}>
-                <div style={styles.col1}>
-                  <p style={styles.todoName}>{todo.name}</p>
-                  <p style={styles.todoDescription}>{todo.description}</p>
-                </div>
-                <div style={styles.col2}>
-                  <button style={styles.button} onClick={()=> removeTodo(todo, user.username)}>delete</button>
-                </div>
-              </div>
-            ))
-          }
-          <br/>
-          <button style={styles.button} onClick={signOut}>Sign out</button>
-        </div>
-      )}
-    </Authenticator>
+        )}
+      </Authenticator>
+    </div>
   );
 }
 
